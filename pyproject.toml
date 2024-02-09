@@ -7,19 +7,19 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-SQLAlchemy = "^1.4.27"
-sqlmodel = "^0.0.4"
-pydantic = "^1.9.0"
-textual = "^0.1.18"    # Version à vérifier selon les dernières mises à jour
+SQLAlchemy = "^2.0.25"
+sqlmodel = "^0.0.14"
+pydantic = "^2.6.1"
+textual = "^0.50.0"    # Version à vérifier selon les dernières mises à jour
 
 # Dépendance pour la base de données, par exemple, psycopg2 pour PostgreSQL
 # psycopg2-binary = "^2.9.3" 
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.1.2"
+pytest = "^8.0.0"
 pytest-cov = "^4.0.0"
 pyright = "^1.1.191"
-ruff = "^0.1.0"
+ruff = "^0.2.1"
 
 [tool.pyright]
 typeCheckingMode = "basic"
