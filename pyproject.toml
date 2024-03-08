@@ -10,7 +10,7 @@ python = "^3.11"
 SQLAlchemy = "^2.0.25"
 sqlmodel = "^0.0.14"
 pydantic = "^2.6.1"
-textual = "^0.50.0"    # Version à vérifier selon les dernières mises à jour
+textual = "^0.52.1"
 
 # Dépendance pour la base de données, par exemple, psycopg2 pour PostgreSQL
 # psycopg2-binary = "^2.9.3" 
