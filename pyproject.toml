@@ -14,6 +14,8 @@ textual = "^0.50.0"    # Version à vérifier selon les dernières mises à jour
 
 # Dépendance pour la base de données, par exemple, psycopg2 pour PostgreSQL
 # psycopg2-binary = "^2.9.3" 
+alembic = "^1.13.1"
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.0.0"
