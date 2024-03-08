@@ -16,6 +16,7 @@ textual = "^0.52.1"
 # psycopg2-binary = "^2.9.3" 
 alembic = "^1.13.1"
 psycopg2-binary = "^2.9.9"
+pyjwt = "^2.8.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.0.0"
