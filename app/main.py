@@ -4,14 +4,15 @@ from cli.login.login import LoginForm
 
 
 class MyApp(App):
+    CSS_PATH = "cli/login/login.css"
     BINDINGS = [
         ("d", "toggle_dark", "Toggle dark mode"),
     ]
 
     def compose(self) -> ComposeResult:
         yield Header()
+        yield LoginForm(id="login-form")
         yield Footer()
-        yield LoginForm()
 
     def action_toggle_dark(self) -> None:
         self.dark = not self.dark
