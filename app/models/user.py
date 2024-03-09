@@ -16,7 +16,7 @@ class DepartmentEnum(str, enum.Enum):
 
 
 class UserBase(SQLModel):
-    email: str = Field(max_length=255)
+    email: str = Field(max_length=255, unique=True, index=True)
     full_name: str = Field(max_length=255)
     hashed_password: str = Field(max_length=255)
     is_active: bool = Field(default=True)
