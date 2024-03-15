@@ -1,0 +1,17 @@
+Screen {
+    align: center middle;
+}
+
+#login-form {
+    width: auto;
+    content-align: center middle;
+
+    Input {
+        margin: 1;
+        width: 40;
+    }
+
+    Button {
+        margin-left: 14;
+    }
+}

@@ -1,10 +1,10 @@
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
-from cli.login.login import LoginForm
+from cli.login import LoginForm
 
 
 class MyApp(App):
-    CSS_PATH = "cli/login/login.css"
+    CSS_PATH = "style.tcss"
     BINDINGS = [
         ("d", "toggle_dark", "Toggle dark mode"),
     ]
