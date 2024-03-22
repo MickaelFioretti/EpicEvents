@@ -4,7 +4,7 @@ from sqlmodel import create_engine, Session
 
 DATABASE_URL = "postgresql://postgres:password@db/epic_events"
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 
 @contextmanager
