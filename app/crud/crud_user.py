@@ -10,10 +10,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         return db.execute(select(User).where(User.email == email)).scalar_one_or_none()
 
+    def get_all(self, db: Session):
+        return db.execute(select(User)).all()
+
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
             email=obj_in.email,
-            hashed_password=get_password_hash(obj_in.password),
+            hashed_password=get_password_hash(obj_in.hashed_password),
             full_name=obj_in.full_name,
             is_active=obj_in.is_active,
             department=obj_in.department,
