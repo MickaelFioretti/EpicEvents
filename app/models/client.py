@@ -4,6 +4,7 @@ from sqlmodel import Relationship, SQLModel, Field
 
 if TYPE_CHECKING:
     from .user import User
+    from .event import Event
 
 
 class ClientBase(SQLModel):
@@ -20,6 +21,7 @@ class Client(ClientBase, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
     user: "User" = Relationship(back_populates="clients")
+    events: list["Event"] = Relationship(back_populates="clients")
 
 
 class ClientCreate(ClientBase):

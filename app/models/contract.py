@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .user import User
+    from .event import Event
 
 
 class StatusContractEnum(str, enum.Enum):
@@ -27,6 +28,7 @@ class Contract(ContractBase, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
     user: "User" = Relationship(back_populates="contracts")
+    events: list["Event"] = Relationship(back_populates="contracts")
 
 
 class ContractCreate(ContractBase):
