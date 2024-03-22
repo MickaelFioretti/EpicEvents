@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.crud.base import CRUDBase
-from app.models.user import User, UserCreate, UserUpdate
+from app.models.user import User, UserCreate, UserUpdate, UserAuthenticate
 from app.core.security import get_password_hash, verify_password
 from typing import Optional
 from sqlmodel import select
@@ -34,9 +34,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data["hashed_password"] = hashed_password
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
-        user = self.get_by_email(db, email=email)
-        if user and verify_password(password, user.hashed_password):
+    def authenticate(self, db: Session, *, obj_in: UserAuthenticate) -> Optional[User]:
+        user = self.get_by_email(db, email=obj_in.email)
+        if user and verify_password(obj_in.password, user.hashed_password):
             return user
         return None
 
