@@ -49,3 +49,13 @@ class UserUpdate(UserBase):
 
 class UserRead(UserBase):
     id: int
+
+
+class UserAuthenticate(SQLModel):
+    email: str
+    password: str
+    full_name: str | None = None
+    is_active: bool | None = None
+    department: DepartmentEnum | None = None
+    created_at: datetime | None = None
+    hashed_password: str | None = None
