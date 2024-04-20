@@ -1,10 +1,11 @@
 Screen {
-    align: center middle;
+    # align: center middle;
 }
 
 LoginForm {
     width: auto;
     content-align: center middle;
+    align: center middle;
 
     Input {
         margin: 1;
@@ -14,4 +15,50 @@ LoginForm {
     Button {
         margin-left: 14;
     }
+
+    Label {
+        margin-left: 12;
+        margin-top: 1;
+        color: red;
+    }
+}
+
+#dashboard {
+    align: left middle;
+    dock: left;
+    width: auto;
+    height: auto;
+}
+
+Dashboard {
+    content-align: center middle;
+
+    Button {
+        margin: 1
+    }
+}
+
+UserList {
+    height: 100%;
+    border: solid green;
+    
+    Grid {
+        grid-size: 1;
+        grid-gutter: 1;
+        keyline: thin;
+    }
+
+    DataTable {
+        column-span: 2;
+    }
+
+    Button {
+        column-span: 3;
+        align: left top
+    }
+}
+
+.content {
+    content-align: center middle;
+    width: auto;
 }

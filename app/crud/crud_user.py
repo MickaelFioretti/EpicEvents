@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from app.crud.base import CRUDBase
 from app.models.user import User, UserCreate, UserUpdate, UserAuthenticate
-from app.core.security import get_password_hash, verify_password
-from typing import Optional
+from app.core.security import get_password_hash, verify_password, create_access_token
+from typing import Optional, Dict
 from sqlmodel import select
+from app.settings import settings
+from datetime import timedelta
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -37,10 +39,18 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data["hashed_password"] = hashed_password
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def authenticate(self, db: Session, *, obj_in: UserAuthenticate) -> Optional[User]:
+    def authenticate(self, db: Session, *, obj_in: UserAuthenticate) -> Optional[Dict[str, str]]:
         user = self.get_by_email(db, email=obj_in.email)
         if user and verify_password(obj_in.password, user.hashed_password):
-            return user
+            access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(
+                data={"sub": user.email}, expires_delta=access_token_expires
+            )
+            # TODO: Add refresh token
+            return {
+                "access_token": access_token,
+                "token_type": "bearer",
+            }
         return None
 
 
