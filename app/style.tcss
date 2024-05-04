@@ -3,9 +3,7 @@ Screen {
 }
 
 LoginForm {
-    width: auto;
-    content-align: center middle;
-    align: center middle;
+    border: solid red;
 
     Input {
         margin: 1;
