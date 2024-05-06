@@ -3,7 +3,8 @@ Screen {
 }
 
 LoginForm {
-    border: solid red;
+    height: 100%;
+    align: center middle;
 
     Input {
         margin: 1;
