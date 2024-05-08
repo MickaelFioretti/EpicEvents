@@ -13,10 +13,10 @@ def test_db():
     with get_db() as db:
         # Essayer d'insérer un nouvel utilisateur (comme test)
         new_user = UserCreate(
-            email="test2@epicevents.com",
-            full_name="test2",
+            email="admin@admin.com",
+            full_name="password",
             hashed_password="changethis",
-            department=DepartmentEnum.guest,
+            department=DepartmentEnum.gestion,
             is_active=True,
         )
 
