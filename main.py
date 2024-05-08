@@ -42,7 +42,10 @@ class MyApp(App):
             case "contracts":
                 print("contracts")
             case "UserList":
-                self.mount(UserList(id=f"{message.path}", classes="content"), after="Dashboard")
+                if self.last_path == "UserList":
+                    pass
+                else:
+                    self.mount(UserList(id="UserList"), after="Header")
             case "logout":
                 self.user_token = None
                 self.query("#dashboard").remove()

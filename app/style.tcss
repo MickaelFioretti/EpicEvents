@@ -1,7 +1,3 @@
-Screen {
-    # align: center middle;
-}
-
 LoginForm {
     height: 100%;
     align: center middle;
@@ -39,21 +35,43 @@ Dashboard {
 
 UserList {
     height: 100%;
-    border: solid green;
+    keyline: thin;
     
     Grid {
         grid-size: 1;
         grid-gutter: 1;
-        keyline: thin;
     }
 
     DataTable {
         column-span: 2;
+        height: 100%;
     }
 
     Button {
         column-span: 3;
-        align: left top
+        align: right top
+    }
+}
+
+UserForm {
+    height: 100%;
+    align: center middle;
+    border: solid red;
+    layout: vertical;
+
+    Input {
+        margin: 1;
+        width: 50;
+        border: solid red;
+    }
+
+    Container {
+        align: center middle;
+        layout: horizontal;
+        
+        Button {
+            margin: 1;
+        }
     }
 }
 

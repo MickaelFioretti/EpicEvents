@@ -1,5 +1,6 @@
-from textual.widgets import Static, DataTable, Button
+from textual.widgets import Static, DataTable, Button, Input
 from textual.app import ComposeResult
+from textual.containers import Container
 from app.crud.crud_user import CRUDUser
 from app.models.user import User
 from app.session import get_db
@@ -30,3 +31,23 @@ class UserList(Static):
                     table.add_row(*[getattr(user, column) for column in self.TABLE_DATA[0]])
             except Exception as e:
                 self.log.warning(e)
+
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.control.name == "add_user":
+            self.query(DataTable).remove()
+            self.query(Button).remove()
+            self.query(Grid).remove()
+            self.mount(UserForm())
+
+
+class UserForm(Static):
+    def compose(self) -> ComposeResult:
+        yield Input(placeholder="Nom complet", id="full_name")
+        yield Input(placeholder="Email", id="email")
+        yield Input(placeholder="Mot de passe", id="password")
+        yield Input(placeholder="Département", id="department")
+        yield Input(placeholder="Actif", id="is_active")
+        yield Container(
+            Button("Annuler", variant="warning", id="cancel_user"),
+            Button("Créer", variant="success", id="create_user"),
+        )
