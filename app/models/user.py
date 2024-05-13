@@ -35,7 +35,7 @@ class UserCreate(UserBase):
     email: str
     full_name: str
     hashed_password: str
-    is_active: bool
+    is_active: bool = True
     department: DepartmentEnum
 
 
@@ -43,7 +43,7 @@ class UserUpdate(UserBase):
     email: str | None
     full_name: str | None
     hashed_password: str | None
-    is_active: bool | None
+    is_active: bool | None = None
     department: DepartmentEnum | None
 
 
