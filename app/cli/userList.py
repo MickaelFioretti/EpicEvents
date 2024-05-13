@@ -1,10 +1,13 @@
-from textual.widgets import Static, DataTable, Button, Input
+from textual.widgets import Static, DataTable, Button, Input, Checkbox, Select, Label
 from textual.app import ComposeResult
 from textual.containers import Container
 from app.crud.crud_user import CRUDUser
-from app.models.user import User
+from app.models.user import User, UserCreate, DepartmentEnum
 from app.session import get_db
 from textual.containers import Grid
+
+
+LINES = DepartmentEnum.__members__.keys()
 
 
 class UserList(Static):
@@ -41,13 +44,64 @@ class UserList(Static):
 
 
 class UserForm(Static):
+    def __init__(self, **kwargs) -> None:
+        self.crud_user = CRUDUser(User)
+        super().__init__(**kwargs)
+
     def compose(self) -> ComposeResult:
-        yield Input(placeholder="Nom complet", id="full_name")
-        yield Input(placeholder="Email", id="email")
-        yield Input(placeholder="Mot de passe", id="password")
-        yield Input(placeholder="Département", id="department")
-        yield Input(placeholder="Actif", id="is_active")
+        yield Container(
+            Input(placeholder="Nom complet", id="full_name"),
+            Input(placeholder="Email", id="email"),
+            Input(placeholder="Mot de passe", password=True, id="password"),
+            Select.from_values(LINES, prompt="Departement", id="department"),
+            Checkbox(label="Actif", value=True, id="is_active"),
+            id="form",
+        )
         yield Container(
             Button("Annuler", variant="warning", id="cancel_user"),
             Button("Créer", variant="success", id="create_user"),
+            classes="buttons",
         )
+
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.control.id == "cancel_user":
+            self.query(Container).remove()
+            self.mount(UserList())
+        if event.control.id == "create_user":
+            label = self.query("#invalid-credentials")
+            if label:
+                label.remove()
+            if not all(
+                [
+                    self.query_one("#full_name", Input).value,
+                    self.query_one("#email", Input).value,
+                    self.query_one("#password", Input).value,
+                ]
+            ):
+                self.mount(
+                    Label("Veuillez remplir tous les champs", id="invalid-credentials"),
+                    after="#is_active",
+                )
+                return
+            full_name = self.query_one("#full_name", Input).value
+            email = self.query_one("#email", Input).value
+            password = self.query_one("#password", Input).value
+            department = self.query_one("#department", Select).value
+            is_active = self.query_one("#is_active", Checkbox).value
+            with get_db() as db:
+                try:
+                    user = UserCreate(
+                        email=email,
+                        full_name=full_name,
+                        hashed_password=password,
+                        department=department
+                        if isinstance(department, DepartmentEnum)
+                        else DepartmentEnum.guest,
+                        is_active=is_active,
+                    )
+                    # self.crud_user.create(db, obj_in=user)
+                    print(user)
+                except Exception as e:
+                    self.log.warning(e)
+            self.query(Container).remove()
+            self.mount(UserList())
