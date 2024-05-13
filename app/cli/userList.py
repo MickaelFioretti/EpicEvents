@@ -1,3 +1,4 @@
+from typing import cast
 from textual.widgets import Static, DataTable, Button, Input, Checkbox, Select, Label
 from textual.app import ComposeResult
 from textual.containers import Container
@@ -43,7 +44,7 @@ class UserList(Static):
             self.mount(UserFormCreate())
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        print(event.cursor_row)
+        print(event.data_table.get_row(event.row_key)[0])
 
 
 class UserFormCreate(Static):
@@ -79,7 +80,7 @@ class UserFormCreate(Static):
                     self.query_one("#full_name", Input).value,
                     self.query_one("#email", Input).value,
                     self.query_one("#password", Input).value,
-                    self.query_one("#department", Select).value,
+                    self.query_one("#department", Select).value != Select.BLANK,
                 ]
             ):
                 self.mount(
@@ -90,7 +91,7 @@ class UserFormCreate(Static):
             full_name = self.query_one("#full_name", Input).value
             email = self.query_one("#email", Input).value
             password = self.query_one("#password", Input).value
-            department = self.query_one("#department", Select).value
+            department = cast(DepartmentEnum, self.query_one("#department", Select).value)
             is_active = self.query_one("#is_active", Checkbox).value
             with get_db() as db:
                 try:

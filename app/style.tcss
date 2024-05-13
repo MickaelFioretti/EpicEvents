@@ -49,11 +49,11 @@ UserList {
 
     Button {
         column-span: 3;
-        align: right top
+        align: right top;
     }
 }
 
-UserForm {
+UserFormCreate {
     height: 100%;
     align: center middle;
     layout: vertical;
