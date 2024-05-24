@@ -17,13 +17,16 @@ class UserList(Static):
         super().__init__(**kwargs)
 
     TABLE_DATA = [("id", "full_name", "email", "department", "is_active")]
+    selected_user: int = 0
 
     def compose(self) -> ComposeResult:
         with Grid():
-            yield Button(
-                "Ajouter un utilisateur", variant="success", name="add_user", classes="box"
+            yield Container(
+                Button("Ajouter un utilisateur", variant="success", name="add_user"),
+                classes="button-container",
             )
-            yield DataTable(classes="box", cursor_type="row")
+
+            yield DataTable(cursor_type="row")
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
@@ -42,9 +45,42 @@ class UserList(Static):
             self.query(Button).remove()
             self.query(Grid).remove()
             self.mount(UserFormCreate())
+        if event.control.name == "update_user":
+            self.query(DataTable).remove()
+            self.query(Button).remove()
+            self.query(Grid).remove()
+            self.mount(UserFormUpdate())
+        if event.control.name == "delete_user":
+            with get_db() as db:
+                try:
+                    if self.selected_user:
+                        self.crud_user.remove(db, id=self.selected_user)
+                except Exception as e:
+                    self.log.warning(e)
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        print(event.data_table.get_row(event.row_key)[0])
+        self.selected_user = event.data_table.get_row(event.row_key)[0]
+        if self.selected_user != 0:
+            self.query("#button-update").remove()
+            self.query("#button-delete").remove()
+            self.mount(
+                Button(
+                    "Modifier un utilisateur",
+                    variant="success",
+                    name="update_user",
+                    id="button-update",
+                ),
+                after="Button",
+            )
+            self.mount(
+                Button(
+                    "Supprimer un utilisateur",
+                    variant="error",
+                    name="delete_user",
+                    id="button-delete",
+                ),
+                after="#button-update",
+            )
 
 
 class UserFormCreate(Static):

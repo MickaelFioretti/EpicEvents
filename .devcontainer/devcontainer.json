@@ -27,7 +27,7 @@
             "settings": {
                 "[python]": {
                     "editor.formatOnSave": true,
-                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.defaultFormatter": null,
                     "editor.codeActionsOnSave": {
                         "source.fixAll": "always"
                     }

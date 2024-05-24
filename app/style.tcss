@@ -42,6 +42,14 @@ UserList {
         grid-gutter: 1;
     }
 
+    .button-container {
+        layout: horizontal;
+
+        Button {
+            margin: 1;
+        }
+    }
+
     DataTable {
         column-span: 2;
         height: 100%;
