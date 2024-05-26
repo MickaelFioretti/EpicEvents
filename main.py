@@ -3,6 +3,7 @@ from textual.widgets import Header, Footer
 from app.cli.login import LoginForm
 from app.cli.dashboard import Dashboard
 from app.cli.userList import UserList
+from app.cli.clientView import ClientView
 
 
 class MyApp(App):
@@ -37,14 +38,21 @@ class MyApp(App):
                     self.query(f"#{self.last_path}").remove()
             case "events":
                 print("events")
-            case "clients":
-                print("clients")
+            case "ClientView":
+                if self.last_path == "ClientView":
+                    pass
+                else:
+                    if self.last_path != "":
+                        self.query(f"#{self.last_path}").remove()
+                    self.mount(ClientView(id="ClientView"), after="Header")
             case "contracts":
                 print("contracts")
             case "UserList":
                 if self.last_path == "UserList":
                     pass
                 else:
+                    if self.last_path != "":
+                        self.query(f"#{self.last_path}").remove()
                     self.mount(UserList(id="UserList"), after="Header")
             case "logout":
                 self.user_token = None

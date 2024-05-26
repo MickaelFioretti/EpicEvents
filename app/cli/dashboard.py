@@ -14,7 +14,7 @@ class Dashboard(Static):
     def compose(self) -> ComposeResult:
         yield Button("Accueil", variant="success", name="Dashboard")
         yield Button("Evenements", variant="success")
-        yield Button("Clients", variant="success")
+        yield Button("Clients", variant="success", name="ClientView")
         yield Button("Contrats", variant="success")
         yield Button("Utilisateurs", variant="success", name="UserList")
         yield Button("Deconnexion", variant="success", name="logout")

@@ -50,9 +50,14 @@ UserList {
         }
     }
 
-    DataTable {
-        column-span: 2;
-        height: 100%;
+    .table {
+        align: center middle;
+
+        DataTable {
+            column-span: 2;
+            height: 100%;
+            width: 55%;
+        }
     }
 
     Button {
@@ -62,6 +67,82 @@ UserList {
 }
 
 UserFormCreate {
+    height: 100%;
+    align: center middle;
+    layout: vertical;
+
+    #form {
+        align: center middle;
+        height: 40%;
+    }
+
+    Input {
+        margin: 1;
+        width: 50;
+    }
+
+    Select {
+        margin: 1;
+        width: 50;
+    }
+
+    Checkbox {
+        margin: 1;
+    }
+
+    
+    Button {
+        margin-left: 3;
+    }
+
+    Label {
+        margin-left: 12;
+        margin-top: 1;
+        color: red;
+    }
+    
+    .buttons {
+        align: center middle;
+        layout: horizontal;
+        height: 10%;
+    }
+
+}
+
+ClientView {
+    height: 100%;
+    keyline: thin;
+    
+    Grid {
+        grid-size: 1;
+        grid-gutter: 1;
+    }
+
+    .button-container {
+        layout: horizontal;
+
+        Button {
+            margin: 1;
+        }
+    }
+
+    .table {
+        align: center middle;
+
+        DataTable {
+            column-span: 2;
+            height: 100%;
+            width: 70%;
+        }
+    }
+
+    Button {
+        column-span: 3;
+        align: right top;
+    }
+}
+
+ClientFormCreate {
     height: 100%;
     align: center middle;
     layout: vertical;

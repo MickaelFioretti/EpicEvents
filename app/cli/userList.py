@@ -26,7 +26,10 @@ class UserList(Static):
                 classes="button-container",
             )
 
-            yield DataTable(cursor_type="row")
+            yield Container(
+                DataTable(cursor_type="row"),
+                classes="table",
+            )
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
