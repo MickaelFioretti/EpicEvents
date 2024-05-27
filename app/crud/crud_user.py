@@ -44,7 +44,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if user and verify_password(obj_in.password, user.hashed_password):
             access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
             access_token = create_access_token(
-                data={"sub": user.email}, expires_delta=access_token_expires
+                data={"sub": user.email, "id": user.id}, expires_delta=access_token_expires
             )
             # TODO: Add refresh token
             return {

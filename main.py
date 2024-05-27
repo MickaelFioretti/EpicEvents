@@ -44,7 +44,7 @@ class MyApp(App):
                 else:
                     if self.last_path != "":
                         self.query(f"#{self.last_path}").remove()
-                    self.mount(ClientView(id="ClientView"), after="Header")
+                    self.mount(ClientView(id="ClientView", user=self.user_token), after="Header")
             case "contracts":
                 print("contracts")
             case "UserList":

@@ -25,4 +25,18 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta()) -> s
     return encoded_jwt
 
 
+def decode_jwt(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        # Token has expired
+        print("Token has expired")
+        return {}
+    except jwt.InvalidTokenError:
+        # Invalid token
+        print("Invalid token")
+        return {}
+
+
 # TODO: Add refresh token
