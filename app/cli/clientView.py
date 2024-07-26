@@ -23,7 +23,7 @@ class ClientView(Static):
         "Nom de l'entreprise",
         "Créé le",
         "Mis à jour le",
-        "ID utilisateur",
+        "Utilisateur",
     ]
     selected_client: int = 0
 
@@ -54,7 +54,7 @@ class ClientView(Static):
                         client.company_name,
                         datetime.strftime(client.created_at, "%Y-%m-%d %H:%M:%S"),
                         datetime.strftime(client.updated_at, "%Y-%m-%d %H:%M:%S"),
-                        client.user_id,
+                        client.full_name,
                     ]
                     table.add_row(*row_data)
             except Exception as e:

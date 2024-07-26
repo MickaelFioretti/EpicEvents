@@ -34,17 +34,17 @@ class Contract(ContractBase, table=True):
 class ContractCreate(ContractBase):
     total_amount: float
     remaining_amount: float
-    status: StatusContractEnum
+    status: StatusContractEnum = StatusContractEnum.en_cours
     client: int
-    user_id: int
+    user_id: int | None = None
 
 
 class ContractUpdate(ContractBase):
     total_amount: float | None
     remaining_amount: float | None
-    status: StatusContractEnum | None
+    status: StatusContractEnum | None = None
     client: int | None
-    user_id: int | None
+    user_id: int | None = None
 
 
 class ContractRead(ContractBase):

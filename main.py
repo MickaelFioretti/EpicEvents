@@ -4,6 +4,7 @@ from app.cli.login import LoginForm
 from app.cli.dashboard import Dashboard
 from app.cli.userList import UserList
 from app.cli.clientView import ClientView
+from app.cli.contractView import ContractView
 
 
 class MyApp(App):
@@ -46,7 +47,14 @@ class MyApp(App):
                         self.query(f"#{self.last_path}").remove()
                     self.mount(ClientView(id="ClientView", user=self.user_token), after="Header")
             case "contracts":
-                print("contracts")
+                if self.last_path == "ContractView":
+                    pass
+                else:
+                    if self.last_path != "":
+                        self.query(f"#{self.last_path}").remove()
+                    self.mount(
+                        ContractView(id="ContractView", user=self.user_token), after="Header"
+                    )
             case "UserList":
                 if self.last_path == "UserList":
                     pass
