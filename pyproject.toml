@@ -17,6 +17,7 @@ pyjwt = "^2.8.0"
 passlib = "^1.7.4"
 pydantic-settings = "^2.2.1"
 textual-dev = "^1.5.1"
+bcrypt = "^3.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.0.0"
