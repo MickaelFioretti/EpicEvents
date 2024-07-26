@@ -21,7 +21,7 @@ class LoginForm(Static):
             super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Input(placeholder="Email", id="email", value="admin@epicevents.com")
+        yield Input(placeholder="Email", id="email", value="admin@admin.com")
         yield Input(placeholder="Password", id="password", value="changethis")
         yield Button("Login", id="login", variant="success")
 

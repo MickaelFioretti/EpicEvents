@@ -21,28 +21,20 @@ class EventBase(SQLModel):
 class Event(EventBase, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
-    clients: list["Client"] = Relationship(back_populates="events")
-    contracts: list["Contract"] = Relationship(back_populates="events")
+    contract: "Contract" = Relationship(back_populates="events")
+    client: "Client" = Relationship(back_populates="events")
 
 
 class EventCreate(EventBase):
-    event_date_start: datetime
-    event_date_end: datetime
     location: str
     attendees: int
-    notes: str
-    contract: int
-    client: int
 
 
 class EventUpdate(EventBase):
-    event_date_start: datetime | None
-    event_date_end: datetime | None
     location: str | None
     attendees: int | None
-    notes: str | None
-    contract: int | None
-    client: int | None
+    contract_id: int | None = None
+    client_id: int | None = None
 
 
 class EventRead(EventBase):

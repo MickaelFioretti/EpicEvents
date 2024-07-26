@@ -2,7 +2,7 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
 from app.cli.login import LoginForm
 from app.cli.dashboard import Dashboard
-from app.cli.userList import UserList
+from app.cli.userView import UserView
 from app.cli.clientView import ClientView
 from app.cli.contractView import ContractView
 
@@ -46,7 +46,7 @@ class MyApp(App):
                     if self.last_path != "":
                         self.query(f"#{self.last_path}").remove()
                     self.mount(ClientView(id="ClientView", user=self.user_token), after="Header")
-            case "contracts":
+            case "ContractView":
                 if self.last_path == "ContractView":
                     pass
                 else:
@@ -55,13 +55,13 @@ class MyApp(App):
                     self.mount(
                         ContractView(id="ContractView", user=self.user_token), after="Header"
                     )
-            case "UserList":
-                if self.last_path == "UserList":
+            case "UserView":
+                if self.last_path == "UserView":
                     pass
                 else:
                     if self.last_path != "":
                         self.query(f"#{self.last_path}").remove()
-                    self.mount(UserList(id="UserList"), after="Header")
+                    self.mount(UserView(id="UserView"), after="Header")
             case "logout":
                 self.user_token = None
                 self.query("#dashboard").remove()

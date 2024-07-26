@@ -14,7 +14,7 @@ def test_db():
         # Essayer d'insérer un nouvel utilisateur (comme test)
         new_user = UserCreate(
             email="admin@admin.com",
-            full_name="password",
+            full_name="Admin",
             hashed_password="changethis",
             department=DepartmentEnum.gestion,
             is_active=True,

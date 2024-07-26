@@ -5,6 +5,7 @@ from sqlmodel import Relationship, SQLModel, Field
 if TYPE_CHECKING:
     from .user import User
     from .event import Event
+    from .contract import Contract
 
 
 class ClientBase(SQLModel):
@@ -21,6 +22,7 @@ class Client(ClientBase, table=True):
     id: int = Field(primary_key=True, index=True)
 
     user: "User" = Relationship(back_populates="clients")
+    contracts: list["Contract"] = Relationship(back_populates="client")
     events: list["Event"] = Relationship(back_populates="clients")
 
 

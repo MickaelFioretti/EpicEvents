@@ -11,7 +11,7 @@ from textual.containers import Grid
 LINES = DepartmentEnum.__members__.keys()
 
 
-class UserList(Static):
+class UserView(Static):
     def __init__(self, **kwargs) -> None:
         self.crud_user = CRUDUser(User)
         super().__init__(**kwargs)
@@ -109,7 +109,7 @@ class UserFormCreate(Static):
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.control.id == "cancel_user":
             self.query(Container).remove()
-            self.mount(UserList())
+            self.mount(UserView())
         if event.control.id == "create_user":
             label = self.query("#invalid-credentials")
             if label:
@@ -145,7 +145,7 @@ class UserFormCreate(Static):
                 except Exception as e:
                     self.log.warning(e)
             self.query(Container).remove()
-            self.mount(UserList())
+            self.mount(UserView())
 
 
 class UserFormUpdate(Static):
