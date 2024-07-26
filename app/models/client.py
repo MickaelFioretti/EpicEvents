@@ -23,7 +23,7 @@ class Client(ClientBase, table=True):
 
     user: "User" = Relationship(back_populates="clients")
     contracts: list["Contract"] = Relationship(back_populates="client")
-    events: list["Event"] = Relationship(back_populates="clients")
+    events: list["Event"] = Relationship(back_populates="client")
 
 
 class ClientCreate(ClientBase):
