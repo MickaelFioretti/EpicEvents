@@ -64,6 +64,7 @@ class ContractView(Static):
                     ]
                     table.add_row(*row_data)
             except Exception as e:
+                table.add_row("No data found")
                 self.log.warning(e)
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -151,7 +152,6 @@ class ContractFormCreate(Static):
             total_amount = self.query_one("#total_amount", Input).value
             remaining_amount = self.query_one("#remaining_amount", Input).value
             status = cast(StatusContractEnum, self.query_one("#status", Select).value)
-            # decode JWT token to get user_id
             # decode JWT token to get user_id
             user_id = decode_jwt(self.user)["id"]
             with get_db() as db:
