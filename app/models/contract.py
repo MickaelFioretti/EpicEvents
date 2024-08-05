@@ -50,3 +50,5 @@ class ContractUpdate(ContractBase):
 
 class ContractRead(ContractBase):
     id: int
+    client: "Client"
+    user: "User"

@@ -53,6 +53,10 @@ class EventView(Static):
         with get_db() as db:
             try:
                 events = self.crud_event.get_multi(db)
+                clients = self.crud_client.get_multi(db)
+                contracts = self.crud_contract.get_multi(db)
+                self.clients = clients
+                self.contracts = contracts
                 for event in events:
                     row_data = [
                         event.id,
@@ -94,8 +98,16 @@ class EventFormCreate(Static):
             Input(placeholder="Location", id="location", type="text"),
             Input(placeholder="Attendees", id="attendees", type="number"),
             Input(placeholder="Notes", id="notes", type="text"),
-            Select.from_values(self.clients, prompt="Client", id="client_id"),
-            Select.from_values(self.contracts, prompt="Contract", id="contract_id"),
+            Select.from_values(
+                (client.company_name for client in self.clients),
+                prompt="Nom de l'entreprise",
+                id="company_name",
+            ),
+            Select.from_values(
+                (f"{contract.id} - {contract.client.company_name}" for contract in self.contracts),
+                prompt="Contract",
+                id="contract_id",
+            ),
             id="form",
         )
         yield Container(
@@ -112,6 +124,7 @@ class EventFormCreate(Static):
             return False
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
+        print(self.contracts)
         if event.control.id == "cancel":
             self.query(Static).remove()
             self.mount(EventView(user=self.user))
@@ -126,13 +139,13 @@ class EventFormCreate(Static):
                     self.query_one("#location", Input).value,
                     self.query_one("#attendees", Input).value,
                     self.query_one("#notes", Input).value,
-                    self.query_one("#client_id", Select).value != Select.BLANK,
+                    self.query_one("#company_name", Select).value != Select.BLANK,
                     self.query_one("#contract_id", Select).value != Select.BLANK,
                 ]
             ):
                 self.mount(
                     Label("Veuillez remplir tous les champs", id="invalid-credentials"),
-                    after="form",
+                    after="#contract_id",
                 )
                 return
             event_date_start = self.query_one("#event_date_start", Input).value
@@ -140,7 +153,7 @@ class EventFormCreate(Static):
             location = self.query_one("#location", Input).value
             attendees = self.query_one("#attendees", Input).value
             notes = self.query_one("#notes", Input).value
-            client_id = self.query_one("#client_id", Select).value
+            client_id = self.query_one("#company_name", Select).value
             contract_id = self.query_one("#contract_id", Select).value
 
             if not self.is_valid_date(event_date_start) or not self.is_valid_date(event_date_end):
@@ -148,7 +161,7 @@ class EventFormCreate(Static):
                     label.remove()
                 self.mount(
                     Label("Veuillez entrer une date valide", id="invalid-credentials"),
-                    after="form",
+                    after="#contract_id",
                 )
                 return
 

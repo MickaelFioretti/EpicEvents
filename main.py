@@ -5,6 +5,7 @@ from app.cli.dashboard import Dashboard
 from app.cli.userView import UserView
 from app.cli.clientView import ClientView
 from app.cli.contractView import ContractView
+from app.cli.Eventview import EventView
 
 
 class MyApp(App):
@@ -37,8 +38,13 @@ class MyApp(App):
             case "Dashboard":
                 if self.last_path != "Dashboard" and self.last_path != "":
                     self.query(f"#{self.last_path}").remove()
-            case "events":
-                print("events")
+            case "EventView":
+                if self.last_path == "EventView":
+                    pass
+                else:
+                    if self.last_path != "":
+                        self.query(f"#{self.last_path}").remove()
+                    self.mount(EventView(id="EventView", user=self.user_token), after="Header")
             case "ClientView":
                 if self.last_path == "ClientView":
                     pass
