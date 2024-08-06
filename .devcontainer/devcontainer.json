@@ -22,7 +22,8 @@
                 "GitHub.copilot",
                 "GitHub.copilot-chat",
                 "GitHub.copilot-labs",
-                "oderwat.indent-rainbow"
+                "oderwat.indent-rainbow",
+                "Textualize.textual-syntax-highlighter"
             ],
             "settings": {
                 "[python]": {
