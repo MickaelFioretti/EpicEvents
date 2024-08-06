@@ -76,20 +76,37 @@ class EventView(Static):
             self.query(DataTable).remove()
             self.query(Button).remove()
             self.query(Grid).remove()
-            self.mount(
-                EventFormCreate(user=self.user, clients=self.clients, contracts=self.contracts)
-            )
+            self.mount(EventFormCreate(user=self.user, clients=self.clients))
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         self.selected_event = event.data_table.get_row(event.row_key)[0]
 
 
 class EventFormCreate(Static):
-    def __init__(self, user, clients, contracts, **kwargs) -> None:
+    def __init__(self, user, clients, **kwargs) -> None:
+        self.crud_contract = CRUDContract(Contract)
         self.user = user
         self.clients = clients
-        self.contracts = contracts
         super().__init__(**kwargs)
+
+    contracts = []
+
+    def on_mount(self) -> None:
+        with get_db() as db:
+            try:
+                contracts = self.crud_contract.get_multi(db)
+                for contract in contracts:
+                    self.contracts.append({"id": contract.id, "name": contract.client.company_name})
+                self.mount(
+                    Select.from_values(
+                        (f"{contract['id']} - {contract['name']}" for contract in self.contracts),
+                        prompt="Contract",
+                        id="contract_id",
+                    ),
+                    after="#company_name",
+                )
+            except Exception as e:
+                self.log.warning(e)
 
     def compose(self) -> ComposeResult:
         yield Container(
@@ -102,11 +119,6 @@ class EventFormCreate(Static):
                 (client.company_name for client in self.clients),
                 prompt="Nom de l'entreprise",
                 id="company_name",
-            ),
-            Select.from_values(
-                (f"{contract.id} - {contract.client.company_name}" for contract in self.contracts),
-                prompt="Contract",
-                id="contract_id",
             ),
             id="form",
         )

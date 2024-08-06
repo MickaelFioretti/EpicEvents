@@ -21,8 +21,8 @@ class EventBase(SQLModel):
 class Event(EventBase, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
-    contract: "Contract" = Relationship(back_populates="events")
-    client: "Client" = Relationship(back_populates="events")
+    contract: "Contract" = Relationship(back_populates="event")
+    client: "Client" = Relationship(back_populates="event")
 
 
 class EventCreate(EventBase):
@@ -39,3 +39,5 @@ class EventUpdate(EventBase):
 
 class EventRead(EventBase):
     id: int
+    contract: "Contract"
+    client: "Client"

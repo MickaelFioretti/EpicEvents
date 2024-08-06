@@ -28,9 +28,9 @@ class ContractBase(SQLModel):
 class Contract(ContractBase, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
-    user: "User" = Relationship(back_populates="contracts")
-    client: "Client" = Relationship(back_populates="contracts")
-    events: list["Event"] = Relationship(back_populates="contract")
+    user: "User" = Relationship(back_populates="contract")
+    client: "Client" = Relationship(back_populates="contract")
+    event: list["Event"] = Relationship(back_populates="contract")
 
 
 class ContractCreate(ContractBase):

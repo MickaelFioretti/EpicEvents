@@ -21,9 +21,9 @@ class ClientBase(SQLModel):
 class Client(ClientBase, table=True):
     id: int = Field(primary_key=True, index=True)
 
-    user: "User" = Relationship(back_populates="clients")
-    contracts: list["Contract"] = Relationship(back_populates="client")
-    events: list["Event"] = Relationship(back_populates="client")
+    user: "User" = Relationship(back_populates="client")
+    contract: list["Contract"] = Relationship(back_populates="client")
+    event: list["Event"] = Relationship(back_populates="client")
 
 
 class ClientCreate(ClientBase):
@@ -44,3 +44,5 @@ class ClientUpdate(ClientBase):
 
 class ClientRead(ClientBase):
     id: int
+    user: "User"
+    contract: list["Contract"]

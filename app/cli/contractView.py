@@ -52,6 +52,7 @@ class ContractView(Static):
                 contracts = self.crud_contract.get_multi(db)
                 clients = self.crud_client.get_multi(db)
                 self.clients = clients
+                print(contracts)
                 for contract in contracts:
                     row_data = [
                         contract.id,

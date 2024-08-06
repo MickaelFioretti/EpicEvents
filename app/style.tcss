@@ -301,7 +301,7 @@ EventFormCreate {
 
     #form {
         align: center middle;
-        height: 60%;
+        height: 62%;
     }
 
     Input {

@@ -27,8 +27,8 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
-    clients: list["Client"] = Relationship(back_populates="user")
-    contracts: list["Contract"] = Relationship(back_populates="user")
+    client: list["Client"] = Relationship(back_populates="user")
+    contract: list["Contract"] = Relationship(back_populates="user")
 
 
 class UserCreate(UserBase):
