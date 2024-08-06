@@ -16,6 +16,7 @@ RUN apt-get update && apt-get -y --quiet --no-install-recommends install \
     sudo openssh-client locales build-essential \
     # Backend Python packages
     python3.11 python3-pip python3-pexpect \
+    sudo apt python-is-python3 \
     # Tools
     htop net-tools vim curl git bash-completion \
     sed desktop-file-utils libgl1-mesa-dev libglu1-mesa-dev
