@@ -52,7 +52,7 @@ class UserView(Static):
             self.query(DataTable).remove()
             self.query(Button).remove()
             self.query(Grid).remove()
-            self.mount(UserFormUpdate())
+            self.mount(UserFormUpdate(user_id=self.selected_user))
         if event.control.name == "delete_user":
             with get_db() as db:
                 try:
@@ -149,9 +149,24 @@ class UserFormCreate(Static):
 
 
 class UserFormUpdate(Static):
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, user_id: int, **kwargs) -> None:
         self.crud_user = CRUDUser(User)
+        self.user_id = user_id
         super().__init__(**kwargs)
+
+    def on_mount(self) -> None:
+        with get_db() as db:
+            try:
+                user = self.crud_user.get(db, id=self.user_id)
+                if user:
+                    self.query_one("#full_name", Input).value = user.full_name
+                    self.query_one("#email", Input).value = user.email
+                    self.query_one("#department", Select).value = user.department
+                    self.query_one("#is_active", Checkbox).value = user.is_active
+                else:
+                    self.mount(UserView())
+            except Exception as e:
+                self.log.warning(e)
 
     def compose(self) -> ComposeResult:
         yield Container(
@@ -166,3 +181,10 @@ class UserFormUpdate(Static):
             Button("Modifier", variant="success", id="update_user"),
             classes="buttons",
         )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.control.id == "cancel_user":
+            self.query(Container).remove()
+            self.mount(UserView())
+        if event.control.id == "update_user":
+            print("update")

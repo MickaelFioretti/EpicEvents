@@ -109,6 +109,49 @@ UserFormCreate {
 
 }
 
+UserFormUpdate {
+    height: 100%;
+    align: center middle;
+    layout: vertical;
+
+    #form {
+        align: center middle;
+        height: 40%;
+    }
+
+    Input {
+        margin: 1;
+        width: 50;
+    }
+
+    Select {
+        margin: 1;
+        width: 50;
+    }
+
+    Checkbox {
+        margin: 1;
+    }
+
+    
+    Button {
+        margin-left: 3;
+    }
+
+    Label {
+        margin-left: 12;
+        margin-top: 1;
+        color: red;
+    }
+    
+    .buttons {
+        align: center middle;
+        layout: horizontal;
+        height: 10%;
+    }
+
+}
+
 ClientView {
     height: 100%;
     keyline: thin;
