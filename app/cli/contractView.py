@@ -76,15 +76,15 @@ class ContractView(Static):
             self.mount(ContractFormCreate(user=self.user, clients=self.clients))
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        self.selected_contract = event.data_table.get_row(event.row_key)[0]
-        if self.selected_contract != 0:
+        self.selected_user = event.data_table.get_row(event.row_key)[0]
+        if self.selected_user != 0:
             self.query("#button-update").remove()
             self.query("#button-delete").remove()
             self.mount(
                 Button(
                     "Modifier un contrat",
                     variant="success",
-                    name="update_contract",
+                    name="update_user",
                     id="button-update",
                 ),
                 after="Button",
@@ -93,10 +93,10 @@ class ContractView(Static):
                 Button(
                     "Supprimer un contrat",
                     variant="error",
-                    name="delete_contract",
+                    name="delete_user",
                     id="button-delete",
                 ),
-                after="Button",
+                after="#button-update",
             )
 
 
