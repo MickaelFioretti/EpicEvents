@@ -3,7 +3,7 @@ from textual.widgets import Static, DataTable, Button, Input, Checkbox, Select, 
 from textual.app import ComposeResult
 from textual.containers import Container
 from app.crud.crud_user import CRUDUser
-from app.models.user import User, UserCreate, DepartmentEnum
+from app.models.user import User, UserCreate, DepartmentEnum, UserUpdate
 from app.session import get_db
 from textual.containers import Grid
 
@@ -16,7 +16,7 @@ class UserView(Static):
         self.crud_user = CRUDUser(User)
         super().__init__(**kwargs)
 
-    TABLE_DATA = [("id", "full_name", "email", "department", "is_active")]
+    TABLE_HEADERS = ["ID", "Nom complet", "Email", "Department", "Actif"]
     selected_user: int = 0
 
     def compose(self) -> ComposeResult:
@@ -33,12 +33,19 @@ class UserView(Static):
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
-        table.add_columns(*self.TABLE_DATA[0])
+        table.add_columns(*self.TABLE_HEADERS)
         with get_db() as db:
             try:
                 users = self.crud_user.get_multi(db)
                 for user in users:
-                    table.add_row(*[getattr(user, column) for column in self.TABLE_DATA[0]])
+                    row_data = [
+                        user.id,
+                        user.full_name,
+                        user.email,
+                        user.department,
+                        user.is_active,
+                    ]
+                    table.add_row(*row_data)
             except Exception as e:
                 self.log.warning(e)
 
@@ -154,11 +161,14 @@ class UserFormUpdate(Static):
         self.user_id = user_id
         super().__init__(**kwargs)
 
+    user_db: User
+
     def on_mount(self) -> None:
         with get_db() as db:
             try:
                 user = self.crud_user.get(db, id=self.user_id)
                 if user:
+                    self.user_db = user
                     self.query_one("#full_name", Input).value = user.full_name
                     self.query_one("#email", Input).value = user.email
                     self.query_one("#department", Select).value = user.department
@@ -187,4 +197,35 @@ class UserFormUpdate(Static):
             self.query(Container).remove()
             self.mount(UserView())
         if event.control.id == "update_user":
-            print("update")
+            label = self.query("#invalid-credentials")
+            if label:
+                label.remove()
+            if not all(
+                [
+                    self.query_one("#full_name", Input).value,
+                    self.query_one("#email", Input).value,
+                    self.query_one("#department", Select).value != Select.BLANK,
+                ]
+            ):
+                self.mount(
+                    Label("Veuillez remplir tous les champs", id="invalid-credentials"),
+                    after="#is_active",
+                )
+                return
+            full_name = self.query_one("#full_name", Input).value
+            email = self.query_one("#email", Input).value
+            department = cast(DepartmentEnum, self.query_one("#department", Select).value)
+            is_active = self.query_one("#is_active", Checkbox).value
+            with get_db() as db:
+                try:
+                    user = UserUpdate(
+                        email=email,
+                        full_name=full_name,
+                        department=department,
+                        is_active=is_active,
+                    )
+                    self.crud_user.update(db, db_obj=self.user_db, obj_in=user)
+                except Exception as e:
+                    self.log.warning(e)
+            self.query(Container).remove()
+            self.mount(UserView())
