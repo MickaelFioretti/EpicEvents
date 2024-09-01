@@ -30,7 +30,7 @@ class MyApp(App):
         access_token = message.user["access_token"]
         self.user_token = access_token
         self.query("#login-form").remove()
-        self.mount(Dashboard(id="dashboard"), after="Header")
+        self.mount(Dashboard(id="dashboard", user=self.user_token), after="Header")
 
     def on_dashboard_path(self, message: Dashboard.Path) -> None:
         # router

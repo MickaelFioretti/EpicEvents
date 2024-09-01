@@ -2,8 +2,15 @@ from textual.widgets import Static, Button
 from textual.app import ComposeResult
 from textual.message import Message
 
+from app.core.security import decode_jwt
+from app.models.user import DepartmentEnum
+
 
 class Dashboard(Static):
+    def __init__(self, user, **kwargs) -> None:
+        self.user = decode_jwt(user)
+        super().__init__(**kwargs)
+
     path = "home"
 
     class Path(Message):
@@ -11,13 +18,26 @@ class Dashboard(Static):
             self.path = path
             super().__init__()
 
+    def has_permission(self, department, required_departments):
+        return department in required_departments
+
     def compose(self) -> ComposeResult:
-        yield Button("Accueil", variant="success", name="Dashboard")
-        yield Button("Evenements", variant="success", name="EventView")
-        yield Button("Clients", variant="success", name="ClientView")
-        yield Button("Contrats", variant="success", name="ContractView")
-        yield Button("Utilisateurs", variant="success", name="UserView")
-        yield Button("Deconnexion", variant="success", name="logout")
+        user_department = self.user["department"]
+
+        # Define the buttons with their required permissions
+        buttons = [
+            ("Accueil", "Dashboard", [DepartmentEnum.gestion]),
+            ("Evenements", "EventView", [DepartmentEnum.gestion]),
+            ("Clients", "ClientView", [DepartmentEnum.gestion]),
+            ("Contrats", "ContractView", [DepartmentEnum.gestion, DepartmentEnum.commercial]),
+            ("Utilisateurs", "UserView", [DepartmentEnum.gestion]),
+            ("Deconnexion", "logout", [DepartmentEnum.gestion]),
+        ]
+
+        # Generate buttons based on permissions
+        for label, name, required_departments in buttons:
+            if self.has_permission(user_department, required_departments):
+                yield Button(label, variant="success", name=name)
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.name is not None:
