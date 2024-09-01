@@ -41,8 +41,8 @@ class ContractCreate(ContractBase):
 
 
 class ContractUpdate(ContractBase):
-    total_amount: float | None
-    remaining_amount: float | None
+    total_amount: float | None = None
+    remaining_amount: float | None = None
     status: StatusContractEnum | None = None
     client_id: int | None = None
     user_id: int | None = None

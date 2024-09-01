@@ -35,11 +35,11 @@ class ClientCreate(ClientBase):
 
 
 class ClientUpdate(ClientBase):
-    full_name: str | None
-    email: str | None
-    phone: str | None
-    company_name: str | None
-    user_id: int | None
+    full_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    company_name: str | None = None
+    user_id: int | None = None
 
 
 class ClientRead(ClientBase):

@@ -40,11 +40,11 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
-    email: str | None
-    full_name: str | None
-    hashed_password: str | None
+    email: str | None = None
+    full_name: str | None = None
+    hashed_password: str | None = None
     is_active: bool | None = None
-    department: DepartmentEnum | None
+    department: DepartmentEnum | None = None
 
 
 class UserRead(UserBase):
