@@ -2,13 +2,13 @@ from textual.widgets import Static
 from app.crud.crud_event import CRUDEvent
 from app.crud.crud_client import CRUDClient
 from app.crud.crud_contract import CRUDContract
-from app.models.event import Event
+from app.models.event import Event, EventCreate
 from textual.widgets import DataTable, Button, Input, Select, Label
 from textual.containers import Container
 from textual.app import ComposeResult
 from textual.containers import Grid
 from app.session import get_db
-from app.models.client import Client
+from app.models.client import Client, ClientRead
 from app.models.contract import Contract
 from datetime import datetime
 
@@ -53,9 +53,8 @@ class EventView(Static):
         with get_db() as db:
             try:
                 events = self.crud_event.get_multi(db)
-                clients = self.crud_client.get_multi(db)
+                self.clients = self.crud_client.get_multi(db)
                 contracts = self.crud_contract.get_multi(db)
-                self.clients = clients
                 self.contracts = contracts
                 for event in events:
                     row_data = [
@@ -79,8 +78,8 @@ class EventView(Static):
             self.mount(EventFormCreate(user=self.user, clients=self.clients))
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        self.selected_user = event.data_table.get_row(event.row_key)[0]
-        if self.selected_user != 0:
+        self.selected_event = event.data_table.get_row(event.row_key)[0]
+        if self.selected_event != 0:
             self.query("#button-update").remove()
             self.query("#button-delete").remove()
             self.mount(
@@ -106,13 +105,15 @@ class EventView(Static):
 class EventFormCreate(Static):
     def __init__(self, user, clients, **kwargs) -> None:
         self.crud_contract = CRUDContract(Contract)
+        self.crud_event = CRUDEvent(Event)
         self.user = user
-        self.clients = clients
+        self.clients: list[ClientRead] = clients
         super().__init__(**kwargs)
 
     contracts = []
 
     def on_mount(self) -> None:
+        contracts = []
         with get_db() as db:
             try:
                 contracts = self.crud_contract.get_multi(db)
@@ -151,15 +152,14 @@ class EventFormCreate(Static):
 
     def is_valid_date(self, date_str: str) -> bool:
         try:
-            datetime.strptime(date_str, "%Y-%m-%d")
+            datetime.strptime(date_str, "%d/%m/%Y")
             return True
         except ValueError:
             return False
 
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
-        print(self.contracts)
+    def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.control.id == "cancel":
-            self.query(Static).remove()
+            self.query(Container).remove()
             self.mount(EventView(user=self.user))
         if event.control.id == "submit":
             label = self.query("#invalid-credentials")
@@ -181,13 +181,9 @@ class EventFormCreate(Static):
                     after="#contract_id",
                 )
                 return
+
             event_date_start = self.query_one("#event_date_start", Input).value
             event_date_end = self.query_one("#event_date_end", Input).value
-            location = self.query_one("#location", Input).value
-            attendees = self.query_one("#attendees", Input).value
-            notes = self.query_one("#notes", Input).value
-            client_id = self.query_one("#company_name", Select).value
-            contract_id = self.query_one("#contract_id", Select).value
 
             if not self.is_valid_date(event_date_start) or not self.is_valid_date(event_date_end):
                 if label:
@@ -198,21 +194,31 @@ class EventFormCreate(Static):
                 )
                 return
 
-            print(
-                event_date_start, event_date_end, location, attendees, notes, client_id, contract_id
-            )
+            location = self.query_one("#location", Input).value
+            attendees = self.query_one("#attendees", Input).value
+            notes = self.query_one("#notes", Input).value
+            client_id = self.query_one("#company_name", Select).value
+            contract_id = str(self.query_one("#contract_id", Select).value)
 
-            # with get_db() as db:
-            #     try:
-            #         event = EventCreate(
-            #             event_date_start=event_date_start,
-            #             event_date_end=event_date_end,
-            #             location=location,
-            #             attendees=attendees,
-            #             notes=notes,
-            #             client_id=client_id,
-            #             contract_id=contract_id,
-            #         )
-            #         pass
-            #     except Exception as e:
-            #         self.log.warning(e)
+            with get_db() as db:
+                try:
+                    event = EventCreate(
+                        event_date_start=datetime.strptime(event_date_start, "%d/%m/%Y"),
+                        event_date_end=datetime.strptime(event_date_end, "%d/%m/%Y"),
+                        location=location,
+                        attendees=int(attendees),
+                        notes=notes,
+                        client_id=[
+                            client.id for client in self.clients if client.company_name == client_id
+                        ][0],
+                        contract_id=[
+                            contract.id
+                            for contract in self.contracts
+                            if contract.name == contract_id.split(" - ")[1]
+                        ][0],
+                    )
+                    self.crud_event.create(db, obj_in=event)
+                    self.query(Container).remove()
+                    self.mount(EventView(user=self.user))
+                except Exception as e:
+                    self.log.warning(e)

@@ -56,27 +56,6 @@ class ContractView(Static):
 
     def on_mount(self) -> None:
         self.load_contracts()
-        # table = self.query_one(DataTable)
-        # table.add_columns(*self.TABLE_HEADERS)
-        # with get_db() as db:
-        #     try:
-        #         contracts = self.crud_contract.get_multi(db)
-        #         clients = self.crud_client.get_multi(db)
-        #         self.clients = clients
-        #         for contract in contracts:
-        #             row_data = [
-        #                 contract.id,
-        #                 contract.client.company_name,
-        #                 contract.status,
-        #                 contract.created_at,
-        #                 contract.user.full_name,
-        #                 contract.total_amount,
-        #                 contract.remaining_amount,
-        #             ]
-        #             table.add_row(*row_data)
-        #     except Exception as e:
-        #         table.add_row("No data found")
-        #         self.log.warning(e)
 
     def load_contracts(self, filter_user_id=None) -> None:
         table = self.query_one("#contract_table", DataTable)
@@ -206,6 +185,7 @@ class ContractFormCreate(Static):
                     after="#is_active",
                 )
                 return
+
             company_name = self.query_one("#company_name", Select).value
             total_amount = self.query_one("#total_amount", Input).value
             remaining_amount = self.query_one("#remaining_amount", Input).value

@@ -25,6 +25,7 @@ class ClientView(Static):
         "Mis à jour le",
         "Utilisateur",
     ]
+
     selected_client: int = 0
 
     def compose(self) -> ComposeResult:
@@ -80,8 +81,9 @@ class ClientView(Static):
                     self.log.warning(e)
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        self.selected_user = event.data_table.get_row(event.row_key)[0]
-        if self.selected_user != 0:
+        print(event.data_table.get_row(event.row_key)[0])
+        self.selected_client = event.data_table.get_row(event.row_key)[0]
+        if self.selected_client != 0:
             self.query("#button-update").remove()
             self.query("#button-delete").remove()
             self.mount(
@@ -179,7 +181,9 @@ class ClientFormUpdate(Static):
     def on_mount(self) -> None:
         with get_db() as db:
             try:
+                print(self.client_id)
                 client = self.crud_client.get(db, id=self.client_id)
+                print(client)
                 if client:
                     self.client_db = client
                     self.query_one("#full_name", Input).value = client.full_name
