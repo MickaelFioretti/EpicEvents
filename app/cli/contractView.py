@@ -29,40 +29,74 @@ class ContractView(Static):
     ]
 
     selected_contract: int = 0
-
     clients = []
+    contracts = []
+    filter_active = False
+
+    with get_db() as db:
+        try:
+            contracts = CRUDContract(Contract).get_multi(db)
+        except Exception as e:
+            print(e)
 
     def compose(self) -> ComposeResult:
         with Grid():
             yield Container(
-                Button("Ajouter un contrat", variant="success", name="add_contract"),
+                Button(
+                    "Ajouter un contrat", variant="success", name="add_contract", id="button-add"
+                ),
+                Button("Filtre", variant="default", name="filter"),
                 classes="button-container",
             )
 
             yield Container(
-                DataTable(cursor_type="row"),
+                DataTable(cursor_type="row", id="contract_table"),
                 classes="table",
             )
 
     def on_mount(self) -> None:
-        table = self.query_one(DataTable)
+        self.load_contracts()
+        # table = self.query_one(DataTable)
+        # table.add_columns(*self.TABLE_HEADERS)
+        # with get_db() as db:
+        #     try:
+        #         contracts = self.crud_contract.get_multi(db)
+        #         clients = self.crud_client.get_multi(db)
+        #         self.clients = clients
+        #         for contract in contracts:
+        #             row_data = [
+        #                 contract.id,
+        #                 contract.client.company_name,
+        #                 contract.status,
+        #                 contract.created_at,
+        #                 contract.user.full_name,
+        #                 contract.total_amount,
+        #                 contract.remaining_amount,
+        #             ]
+        #             table.add_row(*row_data)
+        #     except Exception as e:
+        #         table.add_row("No data found")
+        #         self.log.warning(e)
+
+    def load_contracts(self, filter_user_id=None) -> None:
+        table = self.query_one("#contract_table", DataTable)
+        table.clear(columns=True)
         table.add_columns(*self.TABLE_HEADERS)
         with get_db() as db:
             try:
-                contracts = self.crud_contract.get_multi(db)
-                clients = self.crud_client.get_multi(db)
-                self.clients = clients
-                for contract in contracts:
-                    row_data = [
-                        contract.id,
-                        contract.client.company_name,
-                        contract.status,
-                        contract.created_at,
-                        contract.user.full_name,
-                        contract.total_amount,
-                        contract.remaining_amount,
-                    ]
-                    table.add_row(*row_data)
+                self.contracts = self.crud_contract.get_multi(db)
+                self.clients = self.crud_client.get_multi(db)
+                for contract in self.contracts:
+                    if filter_user_id is None or contract.user_id == filter_user_id:
+                        table.add_row(
+                            str(contract.id),
+                            contract.client.company_name,
+                            contract.status,
+                            contract.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                            contract.user.full_name,
+                            str(contract.total_amount),
+                            str(contract.remaining_amount),
+                        )
             except Exception as e:
                 table.add_row("No data found")
                 self.log.warning(e)
@@ -89,6 +123,14 @@ class ContractView(Static):
                         self.crud_contract.remove(db, id=self.selected_contract)
                 except Exception as e:
                     self.log.warning(e)
+        if event.control.name == "filter":
+            if self.filter_active:
+                self.load_contracts()
+                self.filter_active = False
+            else:
+                filter_user_id = decode_jwt(self.user)["id"]
+                self.load_contracts(filter_user_id)
+                self.filter_active = True
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         self.selected_contract = event.data_table.get_row(event.row_key)[0]
@@ -102,7 +144,7 @@ class ContractView(Static):
                     name="update_contract",
                     id="button-update",
                 ),
-                after="Button",
+                after="#button-add",
             )
             self.mount(
                 Button(
