@@ -27,37 +27,44 @@ class ClientView(Static):
     ]
 
     selected_client: int = 0
+    filter_active = False
 
     def compose(self) -> ComposeResult:
         with Grid():
             yield Container(
                 Button("Ajouter un client", variant="success", name="add_client"),
+                Button("Filtre", variant="default", name="filter"),
                 classes="button-container",
             )
 
             yield Container(
-                DataTable(cursor_type="row"),
+                DataTable(cursor_type="row", id="client_table"),
                 classes="table",
             )
 
     def on_mount(self) -> None:
-        table = self.query_one(DataTable)
+        self.load_clients()
+
+    def load_clients(self, filter_user_id=None) -> None:
+        table = self.query_one("#client_table", DataTable)
+        table.clear(columns=True)
         table.add_columns(*self.TABLE_HEADERS)
         with get_db() as db:
             try:
                 clients = self.crud_client.get_multi(db)
                 for client in clients:
-                    row_data = [
-                        client.id,
-                        client.full_name,
-                        client.email,
-                        client.phone,
-                        client.company_name,
-                        datetime.strftime(client.created_at, "%Y-%m-%d"),
-                        datetime.strftime(client.updated_at, "%Y-%m-%d"),
-                        client.user.full_name,
-                    ]
-                    table.add_row(*row_data)
+                    if filter_user_id is None or client.user_id == filter_user_id:
+                        row_data = [
+                            client.id,
+                            client.full_name,
+                            client.email,
+                            client.phone,
+                            client.company_name,
+                            datetime.strftime(client.created_at, "%Y-%m-%d"),
+                            datetime.strftime(client.updated_at, "%Y-%m-%d"),
+                            client.user.full_name,
+                        ]
+                        table.add_row(*row_data)
             except Exception as e:
                 self.log.warning(e)
 
@@ -79,6 +86,14 @@ class ClientView(Static):
                         self.crud_client.remove(db, id=self.selected_client)
                 except Exception as e:
                     self.log.warning(e)
+        if event.control.name == "filter":
+            if self.filter_active:
+                self.load_clients()
+                self.filter_active = False
+            else:
+                filter_user_id = decode_jwt(self.user)["id"]
+                self.load_clients(filter_user_id)
+                self.filter_active = True
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         print(event.data_table.get_row(event.row_key)[0])
