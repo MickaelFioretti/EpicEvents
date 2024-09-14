@@ -6,6 +6,7 @@ import enum
 if TYPE_CHECKING:
     from .client import Client
     from .contract import Contract
+    from .event import Event
 
 
 class DepartmentEnum(str, enum.Enum):
@@ -29,6 +30,7 @@ class User(UserBase, table=True):
 
     client: list["Client"] = Relationship(back_populates="user")
     contract: list["Contract"] = Relationship(back_populates="user")
+    events: list["Event"] = Relationship(back_populates="user")
 
 
 class UserCreate(UserBase):

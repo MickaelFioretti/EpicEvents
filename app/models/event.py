@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .client import Client
     from .contract import Contract
+    from .user import User
 
 
 class EventBase(SQLModel):
@@ -16,6 +17,7 @@ class EventBase(SQLModel):
     notes: str = Field(default=None, max_length=2048)
     contract_id: int = Field(default=None, foreign_key="contract.id")
     client_id: int = Field(default=None, foreign_key="client.id")
+    user_id: int = Field(default=None, foreign_key="user.id")
 
 
 class Event(EventBase, table=True):
@@ -23,6 +25,7 @@ class Event(EventBase, table=True):
 
     contract: "Contract" = Relationship(back_populates="event")
     client: "Client" = Relationship(back_populates="event")
+    user: "User" = Relationship(back_populates="events")
 
 
 class EventCreate(EventBase):
@@ -35,9 +38,11 @@ class EventUpdate(EventBase):
     attendees: int | None
     contract_id: int | None = None
     client_id: int | None = None
+    user_id: int | None = None
 
 
 class EventRead(EventBase):
     id: int
     contract: "Contract"
     client: "Client"
+    user: "User"
