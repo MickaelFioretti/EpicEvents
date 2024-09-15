@@ -7,6 +7,25 @@ from app.cli.clientView import ClientView
 from app.cli.contractView import ContractView
 from app.cli.Eventview import EventView
 
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+# Initialiser Sentry avec l'intégration de logging
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,  # Capture info and above as breadcrumbs
+    event_level=logging.ERROR,  # Send errors as events
+)
+
+sentry_sdk.init(
+    dsn="https://2f49aa2397861af51f481a23604163b9@o4507741033070592.ingest.de.sentry.io/4507957996879952",
+    integrations=[sentry_logging],
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
+
 
 class MyApp(App):
     CSS_PATH = "app/style.tcss"
@@ -80,5 +99,4 @@ class MyApp(App):
 
 
 if __name__ == "__main__":
-    app = MyApp()
-    app.run()
+    MyApp().run()
