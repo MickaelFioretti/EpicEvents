@@ -177,7 +177,14 @@ ClientView {
             height: 100%;
             width: auto;
         }
+
+        Label {
+            color: red;
+            margin-left: 12;
+        }
     }
+
+    
 
     Button {
         column-span: 3;

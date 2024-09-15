@@ -4,6 +4,7 @@ from textual.containers import Container
 from textual.app import ComposeResult
 from app.crud.crud_client import CRUDClient
 from app.models.client import Client, ClientCreate, ClientUpdate
+from app.models.user import DepartmentEnum
 from app.session import get_db
 from app.core.security import decode_jwt
 from datetime import datetime
@@ -28,11 +29,12 @@ class ClientView(Static):
 
     selected_client: int = 0
     filter_active = False
+    clients = []
 
     def compose(self) -> ComposeResult:
         with Grid():
             yield Container(
-                Button("Ajouter un client", variant="success", name="add_client"),
+                Button("Ajouter un client", variant="success", name="add_client", id="add_client"),
                 Button("Filtre", variant="default", name="filter"),
                 classes="button-container",
             )
@@ -51,8 +53,8 @@ class ClientView(Static):
         table.add_columns(*self.TABLE_HEADERS)
         with get_db() as db:
             try:
-                clients = self.crud_client.get_multi(db)
-                for client in clients:
+                self.clients = self.crud_client.get_multi(db)
+                for client in self.clients:
                     if filter_user_id is None or client.user_id == filter_user_id:
                         row_data = [
                             client.id,
@@ -68,24 +70,53 @@ class ClientView(Static):
             except Exception as e:
                 self.log.warning(e)
 
+    def has_permission(self, required_departments):
+        user_department = decode_jwt(self.user)["department"]
+        # Allow access if required_departments is empty
+        if not required_departments:
+            return True
+        return user_department in required_departments
+
+    def is_client_owned_by_user(self, client_id):
+        with get_db() as db:
+            client = self.crud_client.get(db, id=client_id)
+            if not client:
+                return False
+            return client.user_id == decode_jwt(self.user)["id"]
+
     async def on_button_pressed(self, event: Button.Pressed) -> None:
+        label = self.query("#invalid-credentials")
+        if label:
+            label.remove()
         if event.control.name == "add_client":
-            self.query(DataTable).remove()
-            self.query(Button).remove()
-            self.query(Grid).remove()
-            self.mount(ClientFormCreate(user=self.user))
+            if self.has_permission([DepartmentEnum.commercial]):
+                self.query(DataTable).remove()
+                self.query(Button).remove()
+                self.query(Grid).remove()
+                self.mount(ClientFormCreate(user=self.user))
         if event.control.name == "update_client":
-            self.query(DataTable).remove()
-            self.query(Button).remove()
-            self.query(Grid).remove()
-            self.mount(ClientFormUpdate(client_id=self.selected_client, user=self.user))
+            if self.has_permission([DepartmentEnum.gestion]):
+                if self.is_client_owned_by_user(self.selected_client):
+                    self.query(DataTable).remove()
+                    self.query(Button).remove()
+                    self.query(Grid).remove()
+                    self.mount(ClientFormUpdate(client_id=self.selected_client, user=self.user))
+                else:
+                    self.mount(
+                        Label(
+                            "Vous ne pouvez pas modifier un client qui ne vous appartient pas !",
+                            id="invalid-credentials",
+                        ),
+                        before="#client_table",
+                    )
         if event.control.name == "delete_client":
-            with get_db() as db:
-                try:
-                    if self.selected_client:
-                        self.crud_client.remove(db, id=self.selected_client)
-                except Exception as e:
-                    self.log.warning(e)
+            if self.has_permission([DepartmentEnum.gestion]):
+                with get_db() as db:
+                    try:
+                        if self.selected_client:
+                            self.crud_client.remove(db, id=self.selected_client)
+                    except Exception as e:
+                        self.log.warning(e)
         if event.control.name == "filter":
             if self.filter_active:
                 self.load_clients()
@@ -96,7 +127,6 @@ class ClientView(Static):
                 self.filter_active = True
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        print(event.data_table.get_row(event.row_key)[0])
         self.selected_client = event.data_table.get_row(event.row_key)[0]
         if self.selected_client != 0:
             self.query("#button-update").remove()
@@ -108,16 +138,7 @@ class ClientView(Static):
                     name="update_client",
                     id="button-update",
                 ),
-                after="Button",
-            )
-            self.mount(
-                Button(
-                    "Supprimer un client",
-                    variant="error",
-                    name="delete_client",
-                    id="button-delete",
-                ),
-                after="#button-update",
+                after="#add_client",
             )
 
 
@@ -196,9 +217,7 @@ class ClientFormUpdate(Static):
     def on_mount(self) -> None:
         with get_db() as db:
             try:
-                print(self.client_id)
                 client = self.crud_client.get(db, id=self.client_id)
-                print(client)
                 if client:
                     self.client_db = client
                     self.query_one("#full_name", Input).value = client.full_name

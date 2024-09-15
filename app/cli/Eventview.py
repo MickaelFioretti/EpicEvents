@@ -1,4 +1,5 @@
 from textual.widgets import Static
+from app.core.security import decode_jwt
 from app.crud.crud_event import CRUDEvent
 from app.crud.crud_client import CRUDClient
 from app.crud.crud_contract import CRUDContract
@@ -8,7 +9,7 @@ from textual.widgets import DataTable, Button, Input, Select, Label
 from textual.containers import Container
 from textual.app import ComposeResult
 from textual.containers import Grid
-from app.models.user import User
+from app.models.user import DepartmentEnum, User
 from app.session import get_db
 from app.models.client import Client, ClientRead
 from app.models.contract import Contract
@@ -39,21 +40,27 @@ class EventView(Static):
 
     clients = []
     contracts = []
+    filter_active = False
 
     def compose(self) -> ComposeResult:
         with Grid():
             yield Container(
                 Button("Ajouter un événement", variant="success", name="add_event"),
+                Button("Filtre", variant="default", name="filter"),
                 classes="button-container",
             )
 
             yield Container(
-                DataTable(cursor_type="row"),
+                DataTable(cursor_type="row", id="events_table"),
                 classes="table",
             )
 
     def on_mount(self) -> None:
-        table = self.query_one(DataTable)
+        self.load_events()
+
+    def load_events(self) -> None:
+        table = self.query_one("#events_table", DataTable)
+        table.clear(columns=True)
         table.add_columns(*self.TABLE_HEADERS)
         with get_db() as db:
             try:
@@ -62,45 +69,64 @@ class EventView(Static):
                 contracts = self.crud_contract.get_multi(db)
                 self.contracts = contracts
                 for event in events:
-                    row_data = [
-                        event.id,
-                        event.location,
-                        event.attendees,
-                        event.notes,
-                        event.event_date_start.strftime("%d/%m/%Y"),
-                        event.event_date_end.strftime("%d/%m/%Y"),
-                        event.contract_id,
-                        event.client.company_name,
-                        event.user.full_name,
-                    ]
-                    table.add_row(*row_data)
+                    # ci filter_active et true alors on afficher tous les event avec un event.user None
+                    if not self.filter_active or (self.filter_active and event.user is None):
+                        row_data = [
+                            event.id,
+                            event.location,
+                            event.attendees,
+                            event.notes,
+                            event.event_date_start.strftime("%d/%m/%Y"),
+                            event.event_date_end.strftime("%d/%m/%Y"),
+                            event.contract_id,
+                            event.client.company_name,
+                            event.user.full_name,
+                        ]
+                        table.add_row(*row_data)
             except Exception as e:
                 table.add_row("No data found")
                 self.log.warning(e)
 
+    def has_permission(self, required_departments):
+        user_department = decode_jwt(self.user)["department"]
+        # Allow access if required_departments is empty
+        if not required_departments:
+            return True
+        return user_department in required_departments
+
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.control.name == "add_event":
-            self.query(DataTable).remove()
-            self.query(Button).remove()
-            self.query(Grid).remove()
-            self.mount(EventFormCreate(user=self.user, clients=self.clients))
+            if self.has_permission([DepartmentEnum.gestion]):
+                self.query(DataTable).remove()
+                self.query(Button).remove()
+                self.query(Grid).remove()
+                self.mount(EventFormCreate(user=self.user, clients=self.clients))
         if event.control.name == "update_event":
-            self.query(DataTable).remove()
-            self.query(Button).remove()
-            self.query(Grid).remove()
-            self.mount(
-                EventFormUpdate(user=self.user, event=self.selected_event, clients=self.clients)
-            )
+            if self.has_permission([DepartmentEnum.gestion]):
+                self.query(DataTable).remove()
+                self.query(Button).remove()
+                self.query(Grid).remove()
+                self.mount(
+                    EventFormUpdate(user=self.user, event=self.selected_event, clients=self.clients)
+                )
         if event.control.name == "delete_event":
-            with get_db() as db:
-                try:
-                    self.crud_event.remove(db, id=self.selected_event)
-                    self.query(DataTable).remove()
-                    self.query(Button).remove()
-                    self.query(Grid).remove()
-                    self.mount(EventView(user=self.user))
-                except Exception as e:
-                    self.log.warning(e)
+            if self.has_permission([DepartmentEnum.gestion]):
+                with get_db() as db:
+                    try:
+                        self.crud_event.remove(db, id=self.selected_event)
+                        self.query(DataTable).remove()
+                        self.query(Button).remove()
+                        self.query(Grid).remove()
+                        self.mount(EventView(user=self.user))
+                    except Exception as e:
+                        self.log.warning(e)
+        if event.control.name == "filter":
+            if self.filter_active:
+                self.filter_active = False
+                self.load_events()
+            else:
+                self.filter_active = True
+                self.load_events()
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         self.selected_event = event.data_table.get_row(event.row_key)[0]
@@ -115,15 +141,6 @@ class EventView(Static):
                     id="button-update",
                 ),
                 after="Button",
-            )
-            self.mount(
-                Button(
-                    "Supprimer un événement",
-                    variant="error",
-                    name="delete_event",
-                    id="button-delete",
-                ),
-                after="#button-update",
             )
 
 

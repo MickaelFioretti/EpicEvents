@@ -7,6 +7,7 @@ from textual.app import ComposeResult
 from textual.containers import Grid
 from textual.widgets import DataTable, Button, Input, Static, Label, Select
 from textual.containers import Container
+from app.models.user import DepartmentEnum
 from app.session import get_db
 from app.core.security import decode_jwt
 
@@ -80,28 +81,38 @@ class ContractView(Static):
                 table.add_row("No data found")
                 self.log.warning(e)
 
+    def has_permission(self, required_departments):
+        user_department = decode_jwt(self.user)["department"]
+        # Allow access if required_departments is empty
+        if not required_departments:
+            return True
+        return user_department in required_departments
+
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.control.name == "add_contract":
-            self.query(DataTable).remove()
-            self.query(Button).remove()
-            self.query(Grid).remove()
-            self.mount(ContractFormCreate(user=self.user, clients=self.clients))
+            if self.has_permission([DepartmentEnum.gestion]):
+                self.query(DataTable).remove()
+                self.query(Button).remove()
+                self.query(Grid).remove()
+                self.mount(ContractFormCreate(user=self.user, clients=self.clients))
         if event.control.name == "update_contract":
-            self.query(DataTable).remove()
-            self.query(Button).remove()
-            self.query(Grid).remove()
-            self.mount(
-                ContractFormUpdate(
-                    user=self.user, clients=self.clients, contract_id=self.selected_contract
+            if self.has_permission([DepartmentEnum.gestion]):
+                self.query(DataTable).remove()
+                self.query(Button).remove()
+                self.query(Grid).remove()
+                self.mount(
+                    ContractFormUpdate(
+                        user=self.user, clients=self.clients, contract_id=self.selected_contract
+                    )
                 )
-            )
         if event.control.name == "delete_contract":
-            with get_db() as db:
-                try:
-                    if self.selected_contract:
-                        self.crud_contract.remove(db, id=self.selected_contract)
-                except Exception as e:
-                    self.log.warning(e)
+            if self.has_permission([DepartmentEnum.gestion]):
+                with get_db() as db:
+                    try:
+                        if self.selected_contract:
+                            self.crud_contract.remove(db, id=self.selected_contract)
+                    except Exception as e:
+                        self.log.warning(e)
         if event.control.name == "filter":
             if self.filter_active:
                 self.load_contracts()
@@ -124,15 +135,6 @@ class ContractView(Static):
                     id="button-update",
                 ),
                 after="#button-add",
-            )
-            self.mount(
-                Button(
-                    "Supprimer un contrat",
-                    variant="error",
-                    name="delete_contract",
-                    id="button-delete",
-                ),
-                after="#button-update",
             )
 
 

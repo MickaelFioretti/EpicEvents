@@ -19,6 +19,8 @@ class Dashboard(Static):
             super().__init__()
 
     def has_permission(self, department, required_departments):
+        if not required_departments:
+            return True
         return department in required_departments
 
     def compose(self) -> ComposeResult:
@@ -26,11 +28,11 @@ class Dashboard(Static):
 
         # Define the buttons with their required permissions
         buttons = [
-            ("Accueil", "Dashboard", [DepartmentEnum.gestion]),
-            ("Evenements", "EventView", [DepartmentEnum.gestion]),
-            ("Clients", "ClientView", [DepartmentEnum.gestion]),
-            ("Contrats", "ContractView", [DepartmentEnum.gestion, DepartmentEnum.commercial]),
-            ("Utilisateurs", "UserView", [DepartmentEnum.gestion]),
+            ("Accueil", "Dashboard", []),
+            ("Evenements", "EventView", []),
+            ("Clients", "ClientView", []),
+            ("Contrats", "ContractView", []),
+            ("Utilisateurs", "UserView", []),
             ("Deconnexion", "logout", [DepartmentEnum.gestion]),
         ]
 
