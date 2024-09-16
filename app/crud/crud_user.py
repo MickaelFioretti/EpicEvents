@@ -6,6 +6,7 @@ from typing import Optional, Dict
 from sqlmodel import select
 from app.settings import settings
 from datetime import timedelta
+import sentry_sdk
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -26,6 +27,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
+        sentry_sdk.capture_message("User created", level="info")
         return db_obj
 
     def update(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User:
@@ -37,6 +39,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
+        sentry_sdk.capture_message("User updated", level="info")
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def authenticate(self, db: Session, *, obj_in: UserAuthenticate) -> Optional[Dict[str, str]]:

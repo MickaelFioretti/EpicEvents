@@ -95,7 +95,7 @@ class ClientView(Static):
                 self.query(Grid).remove()
                 self.mount(ClientFormCreate(user=self.user))
         if event.control.name == "update_client":
-            if self.has_permission([DepartmentEnum.gestion]):
+            if self.has_permission([DepartmentEnum.gestion, DepartmentEnum.commercial]):
                 if self.is_client_owned_by_user(self.selected_client):
                     self.query(DataTable).remove()
                     self.query(Button).remove()

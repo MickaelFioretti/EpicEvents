@@ -11,7 +11,6 @@ import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
 
 # Initialiser Sentry avec l'intégration de logging
 sentry_logging = LoggingIntegration(
