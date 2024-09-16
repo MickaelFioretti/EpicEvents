@@ -3,7 +3,6 @@ from textual.app import ComposeResult
 from textual.message import Message
 
 from app.core.security import decode_jwt
-from app.models.user import DepartmentEnum
 
 
 class Dashboard(Static):
@@ -33,7 +32,7 @@ class Dashboard(Static):
             ("Clients", "ClientView", []),
             ("Contrats", "ContractView", []),
             ("Utilisateurs", "UserView", []),
-            ("Deconnexion", "logout", [DepartmentEnum.gestion]),
+            ("Deconnexion", "logout", []),
         ]
 
         # Generate buttons based on permissions
